@@ -34,22 +34,26 @@ const app = initializeApp(firebaseConfig);
             switch (command) {
 
                 case 1:
-const email = readline.questionEMail()
-const password = readline.question('password:')
-console.log(email, password)
+                    try {
+                        const email = readline.questionEMail()
+                        const password = readline.question('password:')
+                        console.log(email, password)
+                    
+                        const auth = getAuth()
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+                        const user = userCredential.user
+                        console.log(user)
 
-const auth = getAuth();
-createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-        // Signed in 
-        const user = userCredential.user;
-        console.log(user)
         // ...
     })
     .catch((error) => {
         console.error(error)
         // ..
     });                    break
+                    } catch (e) {
+                        console.log('error:',e)
+                    }
+                    break
 
                 case 2:
 
