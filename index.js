@@ -1,5 +1,8 @@
+
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+
 const firebaseConfig = {
     apiKey: "AIzaSyAPov2IbRYu06oi7fNAGUZ_bJIo8lAseWo",
     authDomain: "ionicpwa-d8c79.firebaseapp.com",
@@ -18,3 +21,16 @@ console.log('Firebase Client')
 const email = readline.questionEMail()
 const password = readline.question('password:')
 console.log(email, password)
+
+const auth = getAuth();
+createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        console.log(user)
+        // ...
+    })
+    .catch((error) => {
+        console.error(error)
+        // ..
+    });
