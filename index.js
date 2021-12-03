@@ -1,7 +1,7 @@
 
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAPov2IbRYu06oi7fNAGUZ_bJIo8lAseWo",
@@ -16,8 +16,24 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-console.log('Firebase Client')
+(async () => {
+    try {
+        while (true) {
+            console.log('Firebase Client')
 
+            console.log('   0: Exit')
+            console.log('   1: Create new user')
+            console.log('   2: Sign in user')
+
+            const command = readline.questionInt('Select command:')
+
+            if (command == 0) {
+                break;
+            }
+
+            switch (command) {
+
+                case 1:
 const email = readline.questionEMail()
 const password = readline.question('password:')
 console.log(email, password)
@@ -33,4 +49,16 @@ createUserWithEmailAndPassword(auth, email, password)
     .catch((error) => {
         console.error(error)
         // ..
-    });
+    });                    break
+
+                case 2:
+
+                    break
+            }
+        }
+    } catch (e) {
+        console.log('error:',e)
+    }
+})();
+
+
