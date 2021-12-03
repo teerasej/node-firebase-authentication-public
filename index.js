@@ -44,12 +44,7 @@ const app = initializeApp(firebaseConfig);
                         const user = userCredential.user
                         console.log(user)
 
-        // ...
-    })
-    .catch((error) => {
-        console.error(error)
-        // ..
-    });                    break
+                        await sendEmailVerification(user)
                     } catch (e) {
                         console.log('error:',e)
                     }
