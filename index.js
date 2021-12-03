@@ -1,3 +1,4 @@
+import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 const firebaseConfig = {
     apiKey: "AIzaSyAPov2IbRYu06oi7fNAGUZ_bJIo8lAseWo",
@@ -11,3 +12,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+console.log('Firebase Client')
+
+const email = readline.questionEMail()
+const password = readline.question('password:')
+console.log(email, password)
