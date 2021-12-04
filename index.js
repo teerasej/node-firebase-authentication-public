@@ -1,7 +1,7 @@
 
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification,signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 
 
 
@@ -16,7 +16,7 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification,signInWi
         messagingSenderId: "236296839382",
         appId: "1:236296839382:web:935031e7f83afdf3f8e977"
     };
-    
+
     // Initialize Firebase
     console.log('...initializing app')
     const app = initializeApp(firebaseConfig);
@@ -48,68 +48,70 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification,signInWi
                         const email = readline.questionEMail()
                         const password = readline.question('password:')
                         console.log(email, password)
-                    
+
                         const auth = getAuth()
                         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
                         const user = userCredential.user
                         console.log(user)
-                        
+
                         let actionCodeSettings = {
                             url: 'http://localhost:3000/?email=' + user.email,
                         }
-                        await sendEmailVerification(user,actionCodeSettings)
+                        await sendEmailVerification(user, actionCodeSettings)
                     } catch (e) {
-                        if(e.code == 'auth/email-already-in-use') {
+                        if (e.code == 'auth/email-already-in-use') {
                             console.error('Email already used.')
                         } else {
-                            console.error('error:',e)
+                            console.error('error:', e)
                         }
                     }
                     break
 
                 case 2:
-                    const email = readline.questionEMail()
-                    const password = readline.question('password:')
-                    console.log(email, password)
-                
+
+
                     try {
+                        const email = readline.questionEMail()
+                        const password = readline.question('password:')
+                        console.log(email, password)
+
                         const auth = getAuth()
                         const userCredential = await signInWithEmailAndPassword(auth, email, password)
-        
-                        if(userCredential.user.emailVerified) {
+
+                        if (userCredential.user.emailVerified) {
                             console.log(`Hello, ${userCredential.user.email}`)
                         } else {
                             console.log('Sorry, But you need to check your email and click the verification link.')
                         }
-                        
+
                     } catch (e) {
-                        console.error('error:',e)
+                        console.error('error:', e)
                     }
-                    
+
                     break
 
                 case 3:
-                    
-                
+
+
                     try {
                         const email = readline.questionEMail()
                         const auth = getAuth()
                         const methods = await fetchSignInMethodsForEmail(auth, email)
-        
-                        if(methods.length > 0) {
+
+                        if (methods.length > 0) {
                             console.log(`${email} already used.`)
                         } else {
                             console.log(`${email} is available`)
                         }
-                        
+
                     } catch (e) {
-                        console.error('error:',e)
+                        console.error('error:', e)
                     }
                     break
             }
-        } while (command != 0) 
+        } while (command != 0)
     } catch (e) {
-        console.log('error:',e)
+        console.log('error:', e)
     }
 })();
 
