@@ -1,7 +1,7 @@
 
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification,signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification,signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 
 
 
@@ -32,6 +32,7 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification,signInWi
             console.log('   0: Exit')
             console.log('   1: Create new user')
             console.log('   2: Sign in user')
+            console.log('   3: Check email exists')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -85,6 +86,25 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification,signInWi
                         console.error('error:',e)
                     }
                     
+                    break
+
+                case 3:
+                    
+                
+                    try {
+                        const email = readline.questionEMail()
+                        const auth = getAuth()
+                        const methods = await fetchSignInMethodsForEmail(auth, email)
+        
+                        if(methods.length > 0) {
+                            console.log(`${email} already used.`)
+                        } else {
+                            console.log(`${email} is available`)
+                        }
+                        
+                    } catch (e) {
+                        console.error('error:',e)
+                    }
                     break
             }
         } while (command != 0) 
