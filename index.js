@@ -1,7 +1,7 @@
 
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification,signInWithEmailAndPassword } from "firebase/auth";
 
 
 
@@ -67,6 +67,23 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "
                     break
 
                 case 2:
+                    const email = readline.questionEMail()
+                    const password = readline.question('password:')
+                    console.log(email, password)
+                
+                    try {
+                        const auth = getAuth()
+                        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        
+                        if(userCredential.user.emailVerified) {
+                            console.log(`Hello, ${userCredential.user.email}`)
+                        } else {
+                            console.log('Sorry, But you need to check your email and click the verification link.')
+                        }
+                        
+                    } catch (e) {
+                        console.error('error:',e)
+                    }
                     
                     break
             }
