@@ -2,7 +2,7 @@
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, doc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp } from 'firebase/firestore';
 
 
 const signIn = async (email, password) => {
@@ -147,7 +147,8 @@ const signIn = async (email, password) => {
                     const noteCollection = collection(fireStore,'/notes')
                     await addDoc(noteCollection, {
                         userId: signedInUser.uid,
-                        message: message
+                        message: message,
+                        createdDate: serverTimestamp()
                     })
                     
 
