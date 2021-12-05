@@ -3,7 +3,7 @@ import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { getStorage } from "firebase/storage";
+import { getStorage, ref } from "firebase/storage";
 
 const signIn = async (email, password) => {
     try {
@@ -166,7 +166,15 @@ const signIn = async (email, password) => {
                     })
 
                     if(requestAttachPhoto) {
+
+                        const fileName = readline.question('File name to upload:')
+
+                        if(!fileName || fileName.length == 0) {
+                            continue
+                        }
+
                         const storage = getStorage(app)
+                        const remoteFile = ref(storage, `images/${fileName}`)
                     }
                     
                     break
