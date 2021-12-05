@@ -168,14 +168,24 @@ const signIn = async (email, password) => {
                         const q = query(noteCollection, where("userId", "==", signedInUser.uid));
 
                         const messageSnapshots = await getDocs(q)
-                        const messageArray = messageSnapshots.docs.map(doc => doc.data());
-    
-                        
+                        const messageArray = messageSnapshots.docs.map(doc => { 
+                            return { ...doc.data(), id: doc.id }
+                        });
+
+
+
 
                         for (let index = 0; index < messageArray.length; index++) {
                             const message = messageArray[index];
-                            console.log(`[${index}]:`)
-                            console.log(JSON.stringify(message,null,'\t'))
+                            console.log(`[${index}]: ${message.id}`)
+                            console.log(JSON.stringify(message, null, '\t'))
+                        }
+                    } catch (error) {
+                        console.log('Error', error)
+                    }
+
+
+                    break
                         }
                     } catch (error) {
                         console.log('Error', error)
