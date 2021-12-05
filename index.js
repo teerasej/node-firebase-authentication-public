@@ -3,7 +3,7 @@ import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytes, listAll } from "firebase/storage";
 import * as fs from 'fs/promises'
 
 const signIn = async (email, password) => {
@@ -59,7 +59,7 @@ const signIn = async (email, password) => {
         signedInUser = await signIn('teerasej@gmail.com', '111222')
 
         do {
-            console.log('\nFirebase Client')
+            console.log('\n==== Firebase Client ====')
 
             console.log('   0: Exit')
             console.log('   1: Create new user')
@@ -74,6 +74,7 @@ const signIn = async (email, password) => {
 
             console.log('\n --- File ---')
             console.log('   8: Upload File')
+            console.log('   9: List Files')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -281,9 +282,6 @@ const signIn = async (email, password) => {
                             continue
                         }
 
-
-                        const fireStore = getFirestore(app)
-
                         const fileName = readline.question('File name to upload:')
 
                         if (!fileName || fileName.length == 0) {
@@ -296,6 +294,7 @@ const signIn = async (email, password) => {
                             continue
                         }
 
+                        const fireStore = getFirestore(app)
                         const storage = getStorage(app)
                         const remoteFileRef = ref(storage, `${remoteLocation}/${fileName}`)
                         const buffer = await fs.readFile(fileName)
@@ -308,6 +307,44 @@ const signIn = async (email, password) => {
                         console.log('Error', error)
                     }
 
+
+                    break
+
+                case 9:
+
+                    try {
+                        if (!signedInUser) {
+                            console.log('   please sign in first.')
+                            continue
+                        }
+
+                        const fireStore = getFirestore(app)
+                        const storage = getStorage(app)
+
+                        const rootRef = ref(storage)
+                        // const rootRef = ref(storage, 'path')
+
+                        const fileList = await listAll(rootRef)
+
+                        if (fileList.prefixes.length > 0) {
+                            console.log('Folders:')
+                            fileList.prefixes.forEach(folder => {
+                                console.log(`   ${folder.name}`)
+                            });
+                        }
+
+                        if (fileList.items.length > 0) {
+                            console.log('\nFiles:')
+                            fileList.items.forEach(file => {
+                                console.log(`   ${file.name}`)
+                            });
+                        }
+
+
+
+                    } catch (error) {
+                        console.log('Error:', error)
+                    }
 
                     break
             }
