@@ -3,6 +3,29 @@ import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 
+const signIn = async (email, password) => {
+    try {
+
+        console.log(email, password)
+
+        const auth = getAuth()
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+
+        if (userCredential.user.emailVerified) {
+            console.log(`Hello, ${userCredential.user.email}`)
+
+            return userCredential.user
+
+        } else {
+            console.log('Sorry, But you need to check your email and click the verification link.')
+        }
+
+    } catch (e) {
+        console.error('error:', e)
+        return null;
+    }
+}
+
 
 
 (async () => {
@@ -25,6 +48,10 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInW
     try {
 
         let command = -1;
+        let signedInUser;
+
+        // ad hoc signin
+        signedInUser = await signIn('teerasej@gmail.com','111222')
 
         do {
             console.log('Firebase Client')
@@ -54,6 +81,8 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInW
                         const user = userCredential.user
                         console.log(user)
 
+                        signedInUser = user;
+
                         let actionCodeSettings = {
                             url: 'http://localhost:3000/?email=' + user.email,
                         }
@@ -68,21 +97,9 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInW
                     break
 
                 case 2:
-
-
-                    try {
-                        const email = readline.questionEMail()
-                        const password = readline.question('password:')
-                        console.log(email, password)
-
-                        const auth = getAuth()
-                        const userCredential = await signInWithEmailAndPassword(auth, email, password)
-
-                        if (userCredential.user.emailVerified) {
-                            console.log(`Hello, ${userCredential.user.email}`)
-                        } else {
-                            console.log('Sorry, But you need to check your email and click the verification link.')
-                        }
+                    const email = readline.questionEMail()
+                    const password = readline.question('password:')
+                    signedInUser = await signIn(email, password)
 
                     } catch (e) {
                         console.error('error:', e)
