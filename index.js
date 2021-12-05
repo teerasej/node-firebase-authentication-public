@@ -2,7 +2,7 @@
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
 
 
 const signIn = async (email, password) => {
@@ -68,6 +68,7 @@ const signIn = async (email, password) => {
             console.log('\n --- Note ---')
             console.log('   4: Create tweet')
             console.log('   5: List tweets')
+            console.log('   6: Remove tweet')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -186,7 +187,23 @@ const signIn = async (email, password) => {
 
 
                     break
+
+                case 6:
+
+                    try {
+                        if (!signedInUser) {
+                            console.log('   please sign in first.')
+                            continue
                         }
+
+                        const messageId = readline.question('Message ID:')                         
+
+                        const fireStore = getFirestore(app)
+                        const deletingDoc = doc(fireStore,'/notes', messageId)
+                        await deleteDoc(deletingDoc)
+                    
+                        console.log(`   doc ${messageId} deleted.`)
+                        
                     } catch (error) {
                         console.log('Error', error)
                     }
