@@ -2,6 +2,8 @@
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
+import { getFirestore, collection, addDoc, getDocs, doc } from 'firebase/firestore';
+
 
 const signIn = async (email, password) => {
     try {
@@ -47,6 +49,8 @@ const signIn = async (email, password) => {
 
     try {
 
+
+
         let command = -1;
         let signedInUser;
 
@@ -54,12 +58,15 @@ const signIn = async (email, password) => {
         signedInUser = await signIn('teerasej@gmail.com','111222')
 
         do {
-            console.log('Firebase Client')
+            console.log('\nFirebase Client')
 
             console.log('   0: Exit')
             console.log('   1: Create new user')
             console.log('   2: Sign in user')
             console.log('   3: Check email exists')
+
+            console.log('\n --- Note ---')
+            console.log('   4: Create tweet')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -101,9 +108,6 @@ const signIn = async (email, password) => {
                     const password = readline.question('password:')
                     signedInUser = await signIn(email, password)
 
-                    } catch (e) {
-                        console.error('error:', e)
-                    }
 
                     break
 
@@ -125,11 +129,33 @@ const signIn = async (email, password) => {
                         console.error('error:', e)
                     }
                     break
+
+                case 4:
+
+                    if (!signedInUser) {
+                        console.log('   please sign in first.')
+                        continue
+                    }
+
+                    const message = readline.question('Messsage:')
+
+                    if (!message) {
+                        continue
+                    }
+
+                    const fireStore = getFirestore(app)
+                    const noteCollection = collection(fireStore,'/notes')
+                    await addDoc(noteCollection, {
+                        userId: signedInUser.uid,
+                        message: message
+                    })
+                    
+
+                    break
             }
         } while (command != 0)
     } catch (e) {
         console.log('error:', e)
     }
 })();
-
 
