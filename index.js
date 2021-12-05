@@ -3,7 +3,8 @@ import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { getStorage, ref } from "firebase/storage";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import * as fs from 'fs/promises'
 
 const signIn = async (email, password) => {
     try {
@@ -172,9 +173,14 @@ const signIn = async (email, password) => {
                         if(!fileName || fileName.length == 0) {
                             continue
                         }
-
+                            
                         const storage = getStorage(app)
-                        const remoteFile = ref(storage, `images/${fileName}`)
+                        const remoteFileRef = ref(storage, `images/${fileName}`)
+                        const buffer = await fs.readFile(fileName)
+
+                        console.log('   uploading...')
+                        const result = await uploadBytes(remoteFileRef, buffer)
+                        console.log('   uploaded...')
                     }
                     
                     break
