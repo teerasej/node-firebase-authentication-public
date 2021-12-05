@@ -2,7 +2,7 @@
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 
 const signIn = async (email, password) => {
@@ -69,6 +69,7 @@ const signIn = async (email, password) => {
             console.log('   4: Create tweet')
             console.log('   5: List tweets')
             console.log('   6: Remove tweet')
+            console.log('   7: Edit tweet')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -207,8 +208,38 @@ const signIn = async (email, password) => {
                     } catch (error) {
                         console.log('Error', error)
                     }
-                   
-                    
+
+                    break
+
+                case 7:
+
+                    try {
+                        if (!signedInUser) {
+                            console.log('   please sign in first.')
+                            continue
+                        }
+
+                        const messageId = readline.question('Message ID to Edit:')
+                        
+                       
+                        const fireStore = getFirestore(app)
+                        const targetDoc = doc(fireStore, '/notes', messageId)
+                        const editingDoc = await getDoc(targetDoc)
+                        
+                        console.log(`Current message: ${editingDoc.data().message}`)
+                        const newMessage = readline.question('New Message:')
+
+                        updateDoc(targetDoc, {
+                            message: newMessage,
+                            updatedDate: serverTimestamp()
+                        })
+
+                        console.log(`   doc ${messageId} updated with '${newMessage}'.`)
+
+                    } catch (error) {
+                        console.log('Error', error)
+                    }
+
                     break
             }
         } while (command != 0)
