@@ -2,7 +2,7 @@
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where } from 'firebase/firestore';
 
 
 const signIn = async (email, password) => {
@@ -67,6 +67,7 @@ const signIn = async (email, password) => {
 
             console.log('\n --- Note ---')
             console.log('   4: Create tweet')
+            console.log('   5: List tweets')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -151,7 +152,36 @@ const signIn = async (email, password) => {
                         createdDate: serverTimestamp()
                     })
                     
+                    break
 
+                case 5:
+
+                    try {
+                        if (!signedInUser) {
+                            console.log('   please sign in first.')
+                            continue
+                        }
+    
+                        const fireStore = getFirestore(app)
+                        const noteCollection = collection(fireStore,'/notes')
+
+                        const q = query(noteCollection, where("userId", "==", signedInUser.uid));
+
+                        const messageSnapshots = await getDocs(q)
+                        const messageArray = messageSnapshots.docs.map(doc => doc.data());
+    
+                        
+
+                        for (let index = 0; index < messageArray.length; index++) {
+                            const message = messageArray[index];
+                            console.log(`[${index}]:`)
+                            console.log(JSON.stringify(message,null,'\t'))
+                        }
+                    } catch (error) {
+                        console.log('Error', error)
+                    }
+                   
+                    
                     break
             }
         } while (command != 0)
