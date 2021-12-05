@@ -3,7 +3,7 @@ import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
-
+import { getStorage } from "firebase/storage";
 
 const signIn = async (email, password) => {
     try {
@@ -146,13 +146,28 @@ const signIn = async (email, password) => {
                         continue
                     }
 
+                    console.log('Attach photo?')
+                    console.log('1. No')
+                    console.log('2. Yes')
+                    const attachPhotoChoice = readline.questionInt('Type command:')
+                    
+                    let requestAttachPhoto = false
+                    
+                    if(attachPhotoChoice != 1) {
+                        requestAttachPhoto = true
+                    }
+
                     const fireStore = getFirestore(app)
                     const noteCollection = collection(fireStore,'/notes')
-                    await addDoc(noteCollection, {
+                    const doc = await addDoc(noteCollection, {
                         userId: signedInUser.uid,
                         message: message,
                         createdDate: serverTimestamp()
                     })
+
+                    if(requestAttachPhoto) {
+                        const storage = getStorage(app)
+                    }
                     
                     break
 
