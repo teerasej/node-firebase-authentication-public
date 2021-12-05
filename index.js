@@ -3,8 +3,9 @@ import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, listAll, deleteObject } from "firebase/storage";
+import { getStorage, ref, uploadBytes, listAll, deleteObject, getDownloadURL } from "firebase/storage";
 import * as fs from 'fs/promises'
+import Axios from "axios";
 
 const signIn = async (email, password) => {
     try {
@@ -76,6 +77,7 @@ const signIn = async (email, password) => {
             console.log('   8: Upload File')
             console.log('   9: List Files')
             console.log('   10: Delete File')
+            console.log('   11: Download File')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -370,7 +372,39 @@ const signIn = async (email, password) => {
                         console.log(`   deleting file: '${targetFileName}'.`)
                         await deleteObject(fileRef)
                         console.log(`   deleted.`)
-                    
+
+                    } catch (error) {
+                        console.log('Error:', error)
+                    }
+
+                    break
+
+                case 11:
+
+                    try {
+                        if (!signedInUser) {
+                            console.log('   please sign in first.')
+                            continue
+                        }
+
+                        const targetFileName = readline.question('Target remote file:')
+
+                        if (!targetFileName || targetFileName.length == 0) {
+                            continue
+                        }
+
+                        const fireStore = getFirestore(app)
+                        const storage = getStorage(app)
+                        const fileRef = ref(storage, targetFileName)
+
+                        console.log(`   Downloading file: '${targetFileName}'.`)
+                        const downloadURL = await getDownloadURL(fileRef)
+
+                        const res = await Axios.get(downloadURL, { responseType: "arraybuffer" });
+                        await fs.writeFile(fileRef.name, res.data);
+
+                        console.log(`   downloaded.`)
+
                     } catch (error) {
                         console.log('Error:', error)
                     }
