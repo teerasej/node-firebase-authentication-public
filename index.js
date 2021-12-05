@@ -3,7 +3,7 @@ import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, listAll } from "firebase/storage";
+import { getStorage, ref, uploadBytes, listAll, deleteObject } from "firebase/storage";
 import * as fs from 'fs/promises'
 
 const signIn = async (email, password) => {
@@ -75,6 +75,7 @@ const signIn = async (email, password) => {
             console.log('\n --- File ---')
             console.log('   8: Upload File')
             console.log('   9: List Files')
+            console.log('   10: Delete File')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -342,6 +343,34 @@ const signIn = async (email, password) => {
 
 
 
+                    } catch (error) {
+                        console.log('Error:', error)
+                    }
+
+                    break
+
+                case 10:
+
+                    try {
+                        if (!signedInUser) {
+                            console.log('   please sign in first.')
+                            continue
+                        }
+
+                        const targetFileName = readline.question('Target remote file:')
+
+                        if (!targetFileName || targetFileName.length == 0) {
+                            continue
+                        }
+
+                        const fireStore = getFirestore(app)
+                        const storage = getStorage(app)
+                        const fileRef = ref(storage, targetFileName)
+
+                        console.log(`   deleting file: '${targetFileName}'.`)
+                        await deleteObject(fileRef)
+                        console.log(`   deleted.`)
+                    
                     } catch (error) {
                         console.log('Error:', error)
                     }
