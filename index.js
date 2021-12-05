@@ -56,7 +56,7 @@ const signIn = async (email, password) => {
         let signedInUser;
 
         // ad hoc signin
-        signedInUser = await signIn('teerasej@gmail.com','111222')
+        signedInUser = await signIn('teerasej@gmail.com', '111222')
 
         do {
             console.log('\nFirebase Client')
@@ -71,6 +71,9 @@ const signIn = async (email, password) => {
             console.log('   5: List tweets')
             console.log('   6: Remove tweet')
             console.log('   7: Edit tweet')
+
+            console.log('\n --- File ---')
+            console.log('   8: Upload File')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -151,29 +154,29 @@ const signIn = async (email, password) => {
                     console.log('1. No')
                     console.log('2. Yes')
                     const attachPhotoChoice = readline.questionInt('Type command:')
-                    
+
                     let requestAttachPhoto = false
-                    
-                    if(attachPhotoChoice != 1) {
+
+                    if (attachPhotoChoice != 1) {
                         requestAttachPhoto = true
                     }
 
                     const fireStore = getFirestore(app)
-                    const noteCollection = collection(fireStore,'/notes')
+                    const noteCollection = collection(fireStore, '/notes')
                     const doc = await addDoc(noteCollection, {
                         userId: signedInUser.uid,
                         message: message,
                         createdDate: serverTimestamp()
                     })
 
-                    if(requestAttachPhoto) {
+                    if (requestAttachPhoto) {
 
                         const fileName = readline.question('File name to upload:')
 
-                        if(!fileName || fileName.length == 0) {
+                        if (!fileName || fileName.length == 0) {
                             continue
                         }
-                            
+
                         const storage = getStorage(app)
                         const remoteFileRef = ref(storage, `images/${fileName}`)
                         const buffer = await fs.readFile(fileName)
@@ -182,7 +185,7 @@ const signIn = async (email, password) => {
                         const result = await uploadBytes(remoteFileRef, buffer)
                         console.log('   uploaded...')
                     }
-                    
+
                     break
 
                 case 5:
@@ -192,14 +195,14 @@ const signIn = async (email, password) => {
                             console.log('   please sign in first.')
                             continue
                         }
-    
+
                         const fireStore = getFirestore(app)
-                        const noteCollection = collection(fireStore,'/notes')
+                        const noteCollection = collection(fireStore, '/notes')
 
                         const q = query(noteCollection, where("userId", "==", signedInUser.uid));
 
                         const messageSnapshots = await getDocs(q)
-                        const messageArray = messageSnapshots.docs.map(doc => { 
+                        const messageArray = messageSnapshots.docs.map(doc => {
                             return { ...doc.data(), id: doc.id }
                         });
 
@@ -226,14 +229,14 @@ const signIn = async (email, password) => {
                             continue
                         }
 
-                        const messageId = readline.question('Message ID:')                         
+                        const messageId = readline.question('Message ID:')
 
                         const fireStore = getFirestore(app)
-                        const deletingDoc = doc(fireStore,'/notes', messageId)
+                        const deletingDoc = doc(fireStore, '/notes', messageId)
                         await deleteDoc(deletingDoc)
-                    
+
                         console.log(`   doc ${messageId} deleted.`)
-                        
+
                     } catch (error) {
                         console.log('Error', error)
                     }
@@ -249,12 +252,12 @@ const signIn = async (email, password) => {
                         }
 
                         const messageId = readline.question('Message ID to Edit:')
-                        
-                       
+
+
                         const fireStore = getFirestore(app)
                         const targetDoc = doc(fireStore, '/notes', messageId)
                         const editingDoc = await getDoc(targetDoc)
-                        
+
                         console.log(`Current message: ${editingDoc.data().message}`)
                         const newMessage = readline.question('New Message:')
 
@@ -268,6 +271,43 @@ const signIn = async (email, password) => {
                     } catch (error) {
                         console.log('Error', error)
                     }
+
+                    break
+
+                case 8:
+                    try {
+                        if (!signedInUser) {
+                            console.log('   please sign in first.')
+                            continue
+                        }
+
+
+                        const fireStore = getFirestore(app)
+
+                        const fileName = readline.question('File name to upload:')
+
+                        if (!fileName || fileName.length == 0) {
+                            continue
+                        }
+
+                        const remoteLocation = readline.question('Remote location (ex. asset/images):')
+
+                        if (!remoteLocation || remoteLocation.length == 0) {
+                            continue
+                        }
+
+                        const storage = getStorage(app)
+                        const remoteFileRef = ref(storage, `${remoteLocation}/${fileName}`)
+                        const buffer = await fs.readFile(fileName)
+
+                        console.log(`   uploading '${fileName}' to '${remoteLocation}'...`)
+                        const result = await uploadBytes(remoteFileRef, buffer)
+                        console.log('   uploaded...')
+
+                    } catch (error) {
+                        console.log('Error', error)
+                    }
+
 
                     break
             }
