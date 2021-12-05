@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@firebase/auth": "^0.19.3",
     "firebase": "^9.6.0",
+    "firebase-admin": "^10.0.0",
     "readline-sync": "^1.4.10"
   },
   "type": "module"
