@@ -2,7 +2,7 @@
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, setDoc, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, listAll, deleteObject, getDownloadURL } from "firebase/storage";
 import * as fs from 'fs/promises'
 import Axios from "axios";
@@ -57,7 +57,7 @@ const signIn = async (email, password) => {
         let signedInUser;
 
         // ad hoc signin
-        signedInUser = await signIn('teerasej@gmail.com', '111222')
+        signedInUser = await signIn('teerasej@gmail.com', '111222333')
 
         do {
             console.log('\n==== Firebase Client ====')
@@ -142,52 +142,59 @@ const signIn = async (email, password) => {
                     break
 
                 case 4:
-
-                    if (!signedInUser) {
-                        console.log('   please sign in first.')
-                        continue
-                    }
-
-                    const message = readline.question('Messsage:')
-
-                    if (!message) {
-                        continue
-                    }
-
-                    console.log('Attach photo?')
-                    console.log('1. No')
-                    console.log('2. Yes')
-                    const attachPhotoChoice = readline.questionInt('Type command:')
-
-                    let requestAttachPhoto = false
-
-                    if (attachPhotoChoice != 1) {
-                        requestAttachPhoto = true
-                    }
-
-                    const fireStore = getFirestore(app)
-                    const noteCollection = collection(fireStore, '/notes')
-                    const doc = await addDoc(noteCollection, {
-                        userId: signedInUser.uid,
-                        message: message,
-                        createdDate: serverTimestamp()
-                    })
-
-                    if (requestAttachPhoto) {
-
-                        const fileName = readline.question('File name to upload:')
-
-                        if (!fileName || fileName.length == 0) {
+                    try {
+                        if (!signedInUser) {
+                            console.log('   please sign in first.')
                             continue
                         }
 
-                        const storage = getStorage(app)
-                        const remoteFileRef = ref(storage, `images/${fileName}`)
-                        const buffer = await fs.readFile(fileName)
+                        const message = readline.question('Messsage:')
 
-                        console.log('   uploading...')
-                        const result = await uploadBytes(remoteFileRef, buffer)
-                        console.log('   uploaded...')
+                        if (!message) {
+                            continue
+                        }
+
+                        console.log('Attach photo?')
+                        console.log('1. No')
+                        console.log('2. Yes')
+                        const attachPhotoChoice = readline.questionInt('Type command:')
+
+                        let requestAttachPhoto = false
+
+                        if (attachPhotoChoice != 1) {
+                            requestAttachPhoto = true
+                        }
+
+                        const fireStore = getFirestore(app)
+                        const noteCollection = collection(fireStore, '/notes')
+                        const doc = await addDoc(noteCollection, {
+                            userId: signedInUser.uid,
+                            message: message,
+                            createdDate: serverTimestamp()
+                        })
+
+                        if (requestAttachPhoto) {
+
+                            const fileName = readline.question('File name to upload:')
+
+                            if (!fileName || fileName.length == 0) {
+                                continue
+                            }
+
+                            const storage = getStorage(app)
+                            const remoteFileRef = ref(storage, `images/${fileName}`)
+                            const buffer = await fs.readFile(fileName)
+
+                            console.log('   uploading...')
+                            const result = await uploadBytes(remoteFileRef, buffer)
+                            console.log('   uploaded...')
+
+                            await setDoc(doc, {
+                                attachFile: result.ref.fullPath
+                            }, { merge: true })
+                        }
+                    } catch (error) {
+                        console.log('Error', error)
                     }
 
                     break
