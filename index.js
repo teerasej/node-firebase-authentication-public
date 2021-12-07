@@ -1,7 +1,7 @@
 
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { getFirestore, collection, addDoc, getDocs, doc, serverTimestamp, query, where, deleteDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, listAll, deleteObject, getDownloadURL } from "firebase/storage";
 import * as fs from 'fs/promises'
@@ -78,6 +78,9 @@ const signIn = async (email, password) => {
             console.log('   9: List Files')
             console.log('   10: Delete File')
             console.log('   11: Download File')
+
+            console.log('\n --- Management ---')
+            console.log('   12: Reset Password')
 
             console.log('Type command:')
             const command = readline.questionInt()
@@ -404,6 +407,28 @@ const signIn = async (email, password) => {
                         await fs.writeFile(fileRef.name, res.data);
 
                         console.log(`   downloaded.`)
+
+                    } catch (error) {
+                        console.log('Error:', error)
+                    }
+
+                    break
+
+                case 12:
+
+                    try {
+                       
+                        const email = readline.question('Email:')
+
+                        if (!email || email.length == 0) {
+                            continue
+                        }
+
+                        const auth = getAuth()
+                        auth.languageCode = 'th'
+                        await sendPasswordResetEmail(auth, email)
+
+                        console.log(`   Password reset email sent.`)
 
                     } catch (error) {
                         console.log('Error:', error)
