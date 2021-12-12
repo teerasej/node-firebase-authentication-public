@@ -33,15 +33,9 @@ const signIn = async (email, password) => {
 
 (async () => {
 
+    // Remove unworthy databaseURL config...
     const firebaseConfig = {
-        apiKey: "AIzaSyAPov2IbRYu06oi7fNAGUZ_bJIo8lAseWo",
-        authDomain: "ionicpwa-d8c79.firebaseapp.com",
-        // Remove this unworthy config...
-        databaseURL: "https://ionicpwa-d8c79.firebaseio.com",
-        projectId: "ionicpwa-d8c79",
-        storageBucket: "ionicpwa-d8c79.appspot.com",
-        messagingSenderId: "236296839382",
-        appId: "1:236296839382:web:935031e7f83afdf3f8e977"
+        
     };
 
     // Initialize Firebase
@@ -57,7 +51,7 @@ const signIn = async (email, password) => {
         let signedInUser;
 
         // ad hoc signin
-        signedInUser = await signIn('teerasej@gmail.com', '111222333')
+        signedInUser = await signIn('', '')
 
         do {
             console.log('\n==== Firebase Client ====')
