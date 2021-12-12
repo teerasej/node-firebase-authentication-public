@@ -2,7 +2,6 @@
 import * as readline from "readline-sync";
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getFunctions, connectFunctionsEmulator, httpsCallable } from "firebase/functions";
 
 import * as fs from 'fs/promises'
 import Axios from "axios";
@@ -37,6 +36,7 @@ const signIn = async (email, password) => {
     const firebaseConfig = {
         apiKey: "AIzaSyAPov2IbRYu06oi7fNAGUZ_bJIo8lAseWo",
         authDomain: "ionicpwa-d8c79.firebaseapp.com",
+        // Remove this unworthy config...
         databaseURL: "https://ionicpwa-d8c79.firebaseio.com",
         projectId: "ionicpwa-d8c79",
         storageBucket: "ionicpwa-d8c79.appspot.com",
@@ -89,29 +89,21 @@ const signIn = async (email, password) => {
                 case 2:
 
                     try {
-                        if (!signedInUser) {
-                            console.log('   please sign in first.')
-                            continue
-                        }
-
                         const message = readline.question('Messsage:')
 
                         if (!message) {
                             continue
                         }
 
-                        const functions = getFunctions(app);
-                        // Remove this if production
-                        connectFunctionsEmulator(functions, "localhost", 5001);
+                        // Remove these things...
+                        const fireStore = getFirestore(app)
+                        const noteCollection = collection(fireStore, '/notes')
+                        const doc = await addDoc(noteCollection, {
+                            userId: signedInUser.uid,
+                            message: message,
+                            createdDate: serverTimestamp()
+                        })
 
-                        const createMessage = httpsCallable(functions, 'createMessage');
-
-                        const result = await createMessage({ userId: signedInUser.uid, message: message})
-
-                        console.log(`   message created ${result}`)
-                        
-
-                        
                     } catch (error) {
                         console.log('Error', error)
                     }
